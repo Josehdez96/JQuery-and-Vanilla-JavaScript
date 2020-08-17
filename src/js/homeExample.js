@@ -1,20 +1,54 @@
+// /* Composición basica Promesas */
+// const getUser = new Promise(function (res, err) {
+//   //Recibe una respuesta o un error
+// })
+// getUser
+//   .then(res => res)
+//   .catch(err => console.log(err))
+
+// /* XMLHttpRequest con JQuery */
+// $.ajax('https://yts.mx/api/v2/list_movies.json?genre=action', {
+//   method: 'GET',
+//   success: function (data) {
+//     //Function tradicional
+//     console.log(data);
+//   },
+//   error: (err) => {
+//     //Arrow function
+//     console.log(err);
+//   },
+// });
+
+// /* Fetching PROMESAS con Vanilla JavaScript */
+// fetch('https://randomuser.me/api/', {
+//   method: 'GET',
+// })
+//   .then((response) => {
+//     // console.log(response)
+//     return response.json();
+//   })
+//   .then((data) => console.log('user', data))
+//   .catch((err) => console.log('Hemos tenido un error', err));
+
+/* Fetching ASYNC/AWAIT con Vanilla JavaScript */
 (async function loadData() {
   async function getData(url) {
-    const res = await fetch(`https://yts.mx/api/v2${url}`);
+    const res = await fetch(
+      `https://yts.mx/api/v2${url}` /* , {method: 'GET'} */
+    );
     const response = await res.json();
     return response;
   }
 
   /* (Función para) Establecer atributos con Vanilla JavaScript */
   function setAttributes($element, attributes) {
-    /* For que nos sirve para iterar sobre el total de elementos del OBJETO */
+    /* For para iterar sobre el total de elementos del OBJETO */
     for (const key in attributes) {
       $element.setAttribute(key, attributes[key]);
     }
   }
 
-  /* Templates JS, HTML con datos dinamicos */
-  function featuringTemplate(pelicula) {
+  function featurinTemplate(pelicula) {
     return `
     <div class="featuring">
       <div class="featuring-image">
@@ -34,25 +68,23 @@
   }
 
   const $form = document.querySelector('#form');
-
   $form.addEventListener('submit', async (event) => {
     event.preventDefault();
     const $home = document.getElementById('home');
+    // $home.classList.toggle('search-active');
     $home.classList.add('search-active');
+    const $featuringContainer = document.querySelector('#featuring');
 
     /* Creación de un nuevo elemento HTML */
     const $loader = document.createElement('img');
+    /* Establecer atributos a un elemento con JQuery */
+    // $loader.attr({ src: 'urlImg', alt: 'loaderImg', height: '50px' });
     setAttributes($loader, {
       src: 'src/images/loader.gif',
       alt: 'loaderImg',
       height: '50px',
       width: '50px',
     });
-
-    /* Contenedor de pelicula buscada */
-    const $featuringContainer = document.querySelector('#featuring');
-
-    /* append = adjuntar el $loader */
     $featuringContainer.append($loader);
 
     const parseData = new FormData($form);
@@ -61,18 +93,14 @@
     } = await getData(
       `/list_movies.json?/limit=1&query_term=${parseData.get('name')}`
     );
-
-    const HTMLString = featuringTemplate(pelis[0]);
-    /* innerHTML Convierte e inserta texto HTML en elementos del DOM reales de HTML */
+    const HTMLString = featurinTemplate(pelis[0]);
     $featuringContainer.innerHTML = HTMLString;
   });
 
-  /* Fetching de los diferentes generos */
   const actionList = await getData('/list_movies.json?genre=action');
   const dramaList = await getData('/list_movies.json?genre=drama');
   const animationList = await getData('/list_movies.json?genre=animation');
 
-  /* Renderizar las peliculas de cada genero */
   const $actionContainer = document.querySelector('#action');
   renderMovieList(actionList.data.movies, $actionContainer);
 
@@ -82,7 +110,7 @@
   const $animationContainer = document.querySelector('#animation');
   renderMovieList(animationList.data.movies, $animationContainer);
 
-  /* Templates JavaScript, HTML Dinamico */
+  /* Templates JavaScript */
   function videoItemTemplate(src, title) {
     return `
     <div class="primaryPlaylistItem">
@@ -103,15 +131,19 @@
   }
 
   function addEventClick($element) {
+    /* Click Vanilla JavaScript */
     $element.addEventListener('click', () => {
       showModal();
     });
+
+    /* Click JQuery */
+    // $($element).on('click', () => {
+    //   alert('Clickeado!');
+    // });
   }
 
   function renderMovieList(list, $container) {
-    /* Remueve el icono de carga children[0] */
     $container.children[0].remove();
-
     list.forEach((movie) => {
       const HTMLString = videoItemTemplate(
         movie.medium_cover_image,
@@ -138,9 +170,25 @@
   }
 
   $hideModal.addEventListener('click', hideModal);
-
   function hideModal() {
     $overlay.classList.remove('active');
     $modal.style.animation = 'modalOut .8s forwards';
   }
+
+  // /* Templates JQuery */
+  // '<div class="primaryPlaylistItem">' +
+  // '<div class="primaryPlaylistItem-image">' +
+  // '<img src=' +
+  // imageSRC +
+  // ' />' + //Imagen dinamica
+  //   '</div>' +
+  //   '<h4 class="primaryPlaylistItem-title">' +
+  //   'Titulo de la peli' +
+  //   '</h4>' +
+  //   '</div>';
 })();
+
+// /* Selector JQuery */
+// const $HTMLtag = $.('HTMLtag')
+// const $id = $.('#id')
+// const $className = $.('.class')
