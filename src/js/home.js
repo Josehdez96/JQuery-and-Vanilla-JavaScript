@@ -40,10 +40,38 @@
     return response;
   }
 
+  /* (Función para) Establecer atributos con Vanilla JavaScript */
+  function setAttributes($element, attributes) {
+    /* For para iterar sobre el total de elementos del OBJETO */
+    for (const key in attributes) {
+      $element.setAttribute(key, attributes[key]);
+    }
+  }
+
+  const $formContainer = document.querySelector('#form');
+  $formContainer.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const $home = document.getElementById('home');
+    // $home.classList.toggle('search-active');
+    $home.classList.add('search-active');
+    const $featuringContainer = document.querySelector('#featuring');
+
+    /* Creación de un nuevo elemento HTML */
+    const $loader = document.createElement('img');
+    /* Establecer atributos a un elemento con JQuery */
+    // $loader.attr({ src: 'urlImg', alt: 'loaderImg', height: '50px' });
+    setAttributes($loader, {
+      src: 'src/images/loader.gif',
+      alt: 'loaderImg',
+      height: '50px',
+      width: '50px',
+    });
+    $featuringContainer.append($loader);
+  });
+
   const actionList = await getData('/list_movies.json?genre=action');
   const dramaList = await getData('/list_movies.json?genre=drama');
   const animationList = await getData('/list_movies.json?genre=animation');
-  // console.log(actionList, dramaList, animationList);
 
   const $actionContainer = document.querySelector('#action');
   renderMovieList(actionList.data.movies, $actionContainer);
@@ -74,6 +102,18 @@
     return html.body.children[0];
   }
 
+  function addEventClick($element) {
+    /* Click Vanilla JavaScript */
+    $element.addEventListener('click', () => {
+      showModal();
+    });
+
+    /* Click JQuery */
+    // $($element).on('click', () => {
+    //   alert('Clickeado!');
+    // });
+  }
+
   function renderMovieList(list, $container) {
     $container.children[0].remove();
     list.forEach((movie) => {
@@ -83,12 +123,9 @@
       );
       const movieElement = createTemplate(HTMLString);
       $container.append(movieElement);
+      addEventClick(movieElement);
     });
   }
-
-  const $featuringContainer = document.querySelector('#featuring');
-  const $formContainer = document.querySelector('#form');
-  const $homeContainer = document.querySelector('#home');
 
   const $modal = document.getElementById('modal');
   const $overlay = document.getElementById('overlay');
@@ -97,6 +134,18 @@
   const modalImage = $modal.querySelector('h1');
   const overlayImage = $overlay.querySelector('img');
   const hideModalImage = $hideModal.querySelector('p');
+
+  /* Cambiando el CSS y añadiendo/removiendo la parte "active" de una class */
+  function showModal() {
+    $overlay.classList.add('active');
+    $modal.style.animation = 'modalIn .8s forwards';
+  }
+
+  $hideModal.addEventListener('click', hideModal);
+  function hideModal() {
+    $overlay.classList.remove('active');
+    $modal.style.animation = 'modalOut .8s forwards';
+  }
 
   // /* Templates JQuery */
   // '<div class="primaryPlaylistItem">' +
