@@ -68,29 +68,35 @@
   });
 
   /* Fetching de los diferentes generos */
-  const actionList = await getData('/list_movies.json?genre=action');
-  const dramaList = await getData('/list_movies.json?genre=drama');
-  const animationList = await getData('/list_movies.json?genre=animation');
+  const {
+    data: { movies: actionList },
+  } = await getData('/list_movies.json?genre=action');
+  const {
+    data: { movies: dramaList },
+  } = await getData('/list_movies.json?genre=drama');
+  const {
+    data: { movies: animationList },
+  } = await getData('/list_movies.json?genre=animation');
 
   /* Renderizar las peliculas de cada genero */
   const $actionContainer = document.querySelector('#action');
-  renderMovieList(actionList.data.movies, $actionContainer);
+  renderMovieList(actionList, $actionContainer, 'action');
 
   const $dramaContainer = document.querySelector('#drama');
-  renderMovieList(dramaList.data.movies, $dramaContainer);
+  renderMovieList(dramaList, $dramaContainer, 'drama');
 
   const $animationContainer = document.querySelector('#animation');
-  renderMovieList(animationList.data.movies, $animationContainer);
+  renderMovieList(animationList, $animationContainer, 'animation');
 
   /* Templates JavaScript, HTML Dinamico */
-  function videoItemTemplate(src, title) {
+  function videoItemTemplate(movie, category) {
     return `
-    <div class="primaryPlaylistItem">
+    <div class="primaryPlaylistItem" data-id="${movie.id}" data-category="${category}">
     <div class="primaryPlaylistItem-image">
-    <img src="${src}" />
+    <img src="${movie.medium_cover_image}" />
     </div>
     <h4 class="primaryPlaylistItem-title">
-    ${title}
+    ${movie.title}
     </h4>
     </div>
     `;
@@ -104,19 +110,16 @@
 
   function addEventClick($element) {
     $element.addEventListener('click', () => {
-      showModal();
+      showModal($element);
     });
   }
 
-  function renderMovieList(list, $container) {
+  function renderMovieList(list, $container, category) {
     /* Remueve el icono de carga children[0] */
     $container.children[0].remove();
 
     list.forEach((movie) => {
-      const HTMLString = videoItemTemplate(
-        movie.medium_cover_image,
-        movie.title
-      );
+      const HTMLString = videoItemTemplate(movie, category);
       const movieElement = createTemplate(HTMLString);
       $container.append(movieElement);
       addEventClick(movieElement);
@@ -127,14 +130,36 @@
   const $overlay = document.getElementById('overlay');
   const $hideModal = document.getElementById('hide-modal');
 
-  const modalImage = $modal.querySelector('h1');
-  const overlayImage = $overlay.querySelector('img');
-  const hideModalImage = $hideModal.querySelector('p');
+  const $modalImage = $modal.querySelector('h1');
+  const $overlayImage = $modal.querySelector('img');
+  const $modalDescription = $modal.querySelector('p');
+
+  function findById(list, id) {
+    return list.find((movie) => movie.id === parseInt(id, 10));
+  }
+
+  function findMovie(id, category) {
+    switch (category) {
+      case 'action':
+        return findById(actionList, id);
+      case 'drama':
+        return findById(dramaList, id);
+      default:
+        return findById(animationList, id);
+    }
+  }
 
   /* Cambiando el CSS y añadiendo/removiendo la parte "active" de una class */
-  function showModal() {
+  function showModal($element) {
     $overlay.classList.add('active');
     $modal.style.animation = 'modalIn .8s forwards';
+    /* Extraemos los datos del dataset establecido con data-id y data-category */
+    const id = $element.dataset.id;
+    const category = $element.dataset.category;
+    const movieData = findMovie(id, category);
+    $modalImage.textContent = movieData.title;
+    $overlayImage.setAttribute('src', movieData.medium_cover_image);
+    $modalDescription.textContent = movieData.description_full;
   }
 
   $hideModal.addEventListener('click', hideModal);
