@@ -3,15 +3,15 @@ body {
   font-family: 'Lato', sans-serif;
 }
 
-
 /*home layout*/
 .home {
   display: grid;
   height: 100vh;
   grid-template-columns: 350px 1fr;
   grid-template-rows: 1fr 0;
-  grid-template-areas: "sidebar primary"
-                       "sidebar featuring";
+  grid-template-areas:
+    'sidebar primary'
+    'sidebar featuring';
 }
 .home.search-active {
   grid-template-rows: 1fr 150px;
@@ -47,7 +47,6 @@ body {
 
 /*Logo*/
 .logo {
-
 }
 .logo-image {
   margin: 0;
@@ -69,14 +68,13 @@ body {
 .myPlaylist-item a {
   color: white;
   text-decoration: none;
-  font-size: .8em;
+  font-size: 0.8em;
   display: block;
   margin-bottom: 7px;
 }
 .myPlaylist-item:last-child a {
   margin-bottom: 0;
 }
-
 
 .myPlaylist-item a:hover {
   text-decoration: underline;
@@ -95,7 +93,7 @@ body {
 .playlistFriends-item {
   display: flex;
   margin-bottom: 7px;
-  font-size: .8em;
+  font-size: 0.8em;
 }
 .playlistFriends-item a {
   display: inline-flex;
@@ -118,17 +116,16 @@ body {
   display: inline-block;
 }
 
-
 .home-primary {
   display: grid;
-  grid-template-areas: "search user"
-                       "list list";
+  grid-template-areas:
+    'search user'
+    'list list';
   grid-template-rows: auto 1fr;
   grid-template-columns: 300px 1fr;
   padding: 10px;
   overflow: auto;
 }
-
 
 .search {
   grid-area: search;
@@ -136,14 +133,14 @@ body {
 
 .search input {
   background: #f0f0f0;
-  font-family: "Lato";
+  font-family: 'Lato';
   padding: 10px;
   border-radius: 10px;
   font-size: 16px;
   width: 100%;
   border: none;
   box-shadow: 0 0 10px #f0f0f0;
-  box-sizing: border-box;;
+  box-sizing: border-box;
 }
 .primary-search {
   align-self: center;
@@ -174,13 +171,13 @@ body {
 }
 .primaryPlaylist-topic {
   margin: 15px 0 0;
-  color: #888B8E;
+  color: #888b8e;
   font-size: 14px;
   font-weight: 300;
 }
 .primaryPlaylist-title {
   margin: 0 0 15px;
-  color: #3F546C;
+  color: #3f546c;
   font-size: 20px;
   font-weight: 400;
 }
@@ -195,7 +192,7 @@ body {
 
 .primaryPlaylistItem {
   cursor: pointer;
-  transition: .3s;
+  transition: 0.3s;
   /*border: 1px solid blue;*/
 }
 /*.primaryPlaylistItem:hover {
@@ -212,11 +209,10 @@ body {
 }
 .primaryPlaylistItem-title {
   margin: 5px 0;
-  color: #44546B;
+  color: #44546b;
   font-size: 14px;
   font-weight: normal;
 }
-
 
 .featuring {
   background: linear-gradient(to right, #ff0000, #ff458b);
@@ -239,11 +235,9 @@ body {
   margin: 10px;
 }
 
-
 .fadeIn {
   animation: 1000ms fadeIn;
 }
-
 @keyframes fadeIn {
   0% {
     opacity: 0;

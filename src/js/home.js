@@ -2,7 +2,13 @@
   async function getData(url) {
     const res = await fetch(`https://yts.mx/api/v2${url}`);
     const response = await res.json();
-    return response;
+    if (response.data.movie_count > 0) {
+      return response;
+    }
+    //Si no se cumple el if, continua con el código
+
+    //Crear nuevo error con ||new Error|| y con ||throw||, lo lanzo
+    throw new Error('No se encontró ningun resultado');
   }
 
   /* (Función para) Establecer atributos con Vanilla JavaScript */
@@ -48,7 +54,6 @@
       height: '50px',
       width: '50px',
     });
-
     /* Contenedor de pelicula buscada */
     const $featuringContainer = document.querySelector('#featuring');
 
@@ -56,51 +61,24 @@
     $featuringContainer.append($loader);
 
     const parseData = new FormData($form);
-    const {
-      data: { movies: pelis },
-    } = await getData(
-      `/list_movies.json?/limit=1&query_term=${parseData.get('name')}`
-    );
 
-    const HTMLString = featuringTemplate(pelis[0]);
-    /* innerHTML Convierte e inserta texto HTML en elementos del DOM reales de HTML */
-    $featuringContainer.innerHTML = HTMLString;
+    //Validador de errores
+    try {
+      const {
+        data: { movies: pelis },
+      } = await getData(
+        `/list_movies.json?/limit=1&query_term=${parseData.get('name')}`
+      );
+
+      const HTMLString = featuringTemplate(pelis[0]);
+      /* innerHTML Convierte e inserta texto HTML en elementos del DOM reales de HTML */
+      $featuringContainer.innerHTML = HTMLString;
+    } catch (error) {
+      alert(error);
+      $loader.remove();
+      $home.classList.remove('search-active');
+    }
   });
-
-  /* Fetching de los diferentes generos */
-  const {
-    data: { movies: actionList },
-  } = await getData('/list_movies.json?genre=action');
-  const {
-    data: { movies: dramaList },
-  } = await getData('/list_movies.json?genre=drama');
-  const {
-    data: { movies: animationList },
-  } = await getData('/list_movies.json?genre=animation');
-
-  /* Renderizar las peliculas de cada genero */
-  const $actionContainer = document.querySelector('#action');
-  renderMovieList(actionList, $actionContainer, 'action');
-
-  const $dramaContainer = document.querySelector('#drama');
-  renderMovieList(dramaList, $dramaContainer, 'drama');
-
-  const $animationContainer = document.querySelector('#animation');
-  renderMovieList(animationList, $animationContainer, 'animation');
-
-  /* Templates JavaScript, HTML Dinamico */
-  function videoItemTemplate(movie, category) {
-    return `
-    <div class="primaryPlaylistItem" data-id="${movie.id}" data-category="${category}">
-    <div class="primaryPlaylistItem-image">
-    <img src="${movie.medium_cover_image}" />
-    </div>
-    <h4 class="primaryPlaylistItem-title">
-    ${movie.title}
-    </h4>
-    </div>
-    `;
-  }
 
   function createTemplate(HTMLString) {
     const html = document.implementation.createHTMLDocument();
@@ -117,13 +95,63 @@
   function renderMovieList(list, $container, category) {
     /* Remueve el icono de carga children[0] */
     $container.children[0].remove();
-
     list.forEach((movie) => {
       const HTMLString = videoItemTemplate(movie, category);
       const movieElement = createTemplate(HTMLString);
       $container.append(movieElement);
+      const image = movieElement.querySelector('img');
+      image.addEventListener('load', (event) => {
+        event.target.classList.add('fadeIn');
+      });
       addEventClick(movieElement);
     });
+  }
+
+  async function cacheExist(category) {
+    const listName = `${category}List`;
+    const cacheList = window.localStorage.getItem(listName);
+
+    /* Si no hay nada en cacheList devolverá ||null|| que es igual a ||false|| */
+    if (cacheList) {
+      /* Parseamos el texto que viene dentro de cacheList y lo convertimos en un objeto JSON */
+      return JSON.parse(cacheList);
+    }
+    /* Fetching de datos */
+    const {
+      data: { movies: data },
+    } = await getData(`/list_movies.json?genre=${category}`);
+
+    /* Guardar en el localStorage */
+    /* localStorage solo recibe texto, no objetos, por eso usamos JSON.stringify */
+    window.localStorage.setItem(listName, JSON.stringify(data));
+    return data;
+  }
+
+  const actionList = await cacheExist('action');
+  /* Renderizar las peliculas de cada genero */
+  const $actionContainer = document.querySelector('#action');
+  renderMovieList(actionList, $actionContainer, 'action');
+
+  const dramaList = await cacheExist('drama');
+  const $dramaContainer = document.querySelector('#drama');
+  renderMovieList(dramaList, $dramaContainer, 'drama');
+
+  const animationList = await cacheExist('animation');
+  const $animationContainer = document.querySelector('#animation');
+  renderMovieList(animationList, $animationContainer, 'animation');
+
+  /* Templates JavaScript, HTML Dinamico */
+  function videoItemTemplate(movie, category) {
+    return `
+    <div class="primaryPlaylistItem" data-id="${movie.id}" data-category="${category}">
+    <div class="primaryPlaylistItem-image">
+    <img src="${movie.medium_cover_image}" />
+    </div>
+    <h4 class="primaryPlaylistItem-title">
+    ${movie.title}
+    </h4>
+    </div>
+    `;
   }
 
   const $modal = document.getElementById('modal');
